@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="es" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Análisis de Simetría Áurea en la Música</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb', // Blue 600
+            secondary: '#0ea5e9', // Sky 500
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom slider for toggle switch since tailwind form plugin isn't loaded */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #2563eb;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #2563eb;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "d3": "https://esm.sh/d3@7"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex justify-center p-4 md:p-8">
+  <div id="root" class="w-full max-w-5xl"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
