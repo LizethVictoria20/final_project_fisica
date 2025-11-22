@@ -1,73 +1,29 @@
-# React + TypeScript + Vite
+## Análisis de Simetría Áurea Musical (Web App)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+###### Resumen:
+Es una aplicación web progresiva (SPA) construida con React, TypeScript y D3.js que analiza composiciones musicales matemáticamente para determinar su correspondencia con la Proporción Áurea (Phi ≈ 1.618).
 
-Currently, two official plugins are available:
+###### Funcionamiento:
+La aplicación procesa archivos de audio en tiempo real utilizando la Web Audio API (sin backend) para:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Extraer la señal cruda y calcular la energía RMS (Root Mean Square).
+Detectar los "Picos de Energía" (clímax musicales) mediante un algoritmo adaptativo de umbral dinámico.
+Calcular los "Puntos Áureos" temporales ideales de la canción.
+Generar una Puntuación de Simetría que mide la distancia entre los clímax reales y la perfección matemática.
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+###### Tecnologías Clave:
 
-## Expanding the ESLint configuration
+**Frontend:** React 19, TypeScript, Vite.
+**Visualización de Datos: **D3.js (para gráficas de espectro y oscilogramas) - `npm install d3 @types/d3`
+**Estilos:** Tailwind CSS (con soporte Dark Mode). - `npm install -D tailwindcss postcss autoprefixer`
+**Procesamiento**: Web Audio API (Decodificación y análisis DSP nativo en el navegador).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+###### Características Principales:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Visualización dual (Energía vs. Forma de Onda).
+Alternancia de formato de tiempo (Minutos:Segundos / Segundos totales).
+Historial de análisis persistente (LocalStorage).
+Exportación de resultados científicos en formato JSON.
+Arquitectura modular y procesamiento 100% Client-Side (privado y rápido).
