@@ -1,6 +1,3 @@
-
-import React from 'react';
-
 const Footer = () => (
     <footer className="mt-12 py-6 text-center border-t border-slate-200 dark:border-slate-700">
         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Proyecto de Investigación - Octubre 2025</p>

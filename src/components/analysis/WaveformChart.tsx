@@ -1,96 +1,148 @@
+import { useEffect, useRef } from "react";
+import * as d3 from "d3";
+import { formatTime } from "../../utils/helpers";
 
-import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
-import { formatTime } from '../../utils/helpers';
+// Mismos tipos que en App / otros charts
+type TimeFormat = "min_sec" | "seconds";
 
-const WaveformChart = ({ result, timeFormat }) => {
-    const svgRef = useRef(null);
-    const wrapperRef = useRef(null);
+interface AnalysisResult {
+  fileName: string;
+  duration: number;
+  goldenPoints: number[];
+  peaks: { time: number; energy: number }[];
+  proximityScore: number;
+  energyData: number[];
+  waveformData: { min: number; max: number }[];
+}
 
-    useEffect(() => {
-        if (!result || !result.waveformData || !svgRef.current || !wrapperRef.current) return;
+interface WaveformChartProps {
+  result: AnalysisResult;
+  timeFormat: TimeFormat;
+}
 
-        const { duration, waveformData } = result;
-        
-        // Dimensions
-        const margin = { top: 20, right: 40, bottom: 40, left: 50 };
-        const width = wrapperRef.current.clientWidth - margin.left - margin.right;
-        const height = 200 - margin.top - margin.bottom; // Slightly shorter height
+const WaveformChart = ({ result, timeFormat }: WaveformChartProps) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-        // Clear previous SVG
-        const svg = d3.select(svgRef.current);
-        svg.selectAll("*").remove();
+  useEffect(() => {
+    if (
+      !result ||
+      !result.waveformData ||
+      !svgRef.current ||
+      !wrapperRef.current
+    )
+      return;
 
-        const g = svg
-            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+    const { duration, waveformData } = result;
 
-        // Scales
-        const xScale = d3.scaleLinear()
-            .domain([0, duration])
-            .range([0, width]);
+    // Dimensions
+    const margin = { top: 20, right: 40, bottom: 40, left: 50 };
+    const width =
+      (wrapperRef.current as HTMLDivElement).clientWidth -
+      margin.left -
+      margin.right;
+    const height = 200 - margin.top - margin.bottom;
 
-        // Y Scale for Amplitude (-1 to 1)
-        const yScale = d3.scaleLinear()
-            .domain([-1, 1])
-            .range([height, 0]);
+    // Clear previous SVG
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
 
-        // Gradients definition
-        const defs = svg.append("defs");
-        const gradient = defs.append("linearGradient")
-            .attr("id", "raw-wave-gradient")
-            .attr("x1", "0%")
-            .attr("y1", "0%")
-            .attr("x2", "0%")
-            .attr("y2", "100%");
+    const g = svg
+      .attr(
+        "viewBox",
+        `0 0 ${width + margin.left + margin.right} ${
+          height + margin.top + margin.bottom
+        }`
+      )
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        gradient.append("stop").attr("offset", "0%").attr("stop-color", "#0ea5e9").attr("stop-opacity", 0.8); // Sky 500
-        gradient.append("stop").attr("offset", "50%").attr("stop-color", "#22d3ee").attr("stop-opacity", 0.9); // Cyan 400
-        gradient.append("stop").attr("offset", "100%").attr("stop-color", "#0ea5e9").attr("stop-opacity", 0.8);
+    // Scales
+    const xScale = d3.scaleLinear().domain([0, duration]).range([0, width]);
 
-        // Axes
-        const xAxis = d3.axisBottom(xScale)
-            .ticks(width > 600 ? 10 : 5)
-            .tickFormat(d => formatTime(d as number, timeFormat));
+    // Y Scale for Amplitude (-1 to 1)
+    const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
 
-        // Center Line
-        g.append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", yScale(0))
-            .attr("y2", yScale(0))
-            .attr("stroke", "#cbd5e1") // slate-300
-            .attr("stroke-width", 1)
-            .attr("opacity", 0.5);
+    // Gradients definition
+    const defs = svg.append("defs");
+    const gradient = defs
+      .append("linearGradient")
+      .attr("id", "raw-wave-gradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%");
 
-        // Wave Area Generator
-        const area = d3.area<{ min: number, max: number }>()
-            .x((d, i) => xScale((i / (waveformData.length - 1)) * duration))
-            .y0(d => yScale(d.min))
-            .y1(d => yScale(d.max))
-            .curve(d3.curveLinear); // Linear is better for raw waves
+    gradient
+      .append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#0ea5e9")
+      .attr("stop-opacity", 0.8); // Sky 500
+    gradient
+      .append("stop")
+      .attr("offset", "50%")
+      .attr("stop-color", "#22d3ee")
+      .attr("stop-opacity", 0.9); // Cyan 400
+    gradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#0ea5e9")
+      .attr("stop-opacity", 0.8);
 
-        // Draw Wave
-        g.append("path")
-            .datum(waveformData)
-            .attr("fill", "url(#raw-wave-gradient)")
-            .attr("d", area);
+    // Axes
+    const xAxis = d3
+      .axisBottom(xScale)
+      .ticks(width > 600 ? 10 : 5)
+      .tickFormat((d) => formatTime(d as number, timeFormat));
 
-        // Draw X Axis
-        g.append("g")
-            .attr("class", "d3-axis font-mono text-xs text-slate-500 dark:text-slate-400")
-            .attr("transform", `translate(0,${height})`)
-            .call(xAxis)
-            .select(".domain").remove();
+    // Center Line
+    g.append("line")
+      .attr("x1", 0)
+      .attr("x2", width)
+      .attr("y1", yScale(0))
+      .attr("y2", yScale(0))
+      .attr("stroke", "#cbd5e1") // slate-300
+      .attr("stroke-width", 1)
+      .attr("opacity", 0.5);
 
-    }, [result, timeFormat]);
+    // Wave Area Generator
+    const area = d3
+      .area<{ min: number; max: number }>()
+      .x((_d, i) => xScale((i / (waveformData.length - 1)) * duration))
+      .y0((d) => yScale(d.min))
+      .y1((d) => yScale(d.max))
+      .curve(d3.curveLinear); // Linear is better for raw waves
 
-    return (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-xl shadow-md border border-blue-100 dark:border-slate-700 p-4 mb-8 transition-colors" ref={wrapperRef}>
-             <svg ref={svgRef} className="w-full h-auto overflow-visible" aria-label="Visualización de la forma de onda detallada"></svg>
-        </div>
-    );
+    // Draw Wave
+    g.append("path")
+      .datum(waveformData)
+      .attr("fill", "url(#raw-wave-gradient)")
+      .attr("d", area as any);
+
+    // Draw X Axis
+    g.append("g")
+      .attr(
+        "class",
+        "d3-axis font-mono text-xs text-slate-500 dark:text-slate-400"
+      )
+      .attr("transform", `translate(0,${height})`)
+      .call(xAxis)
+      .select(".domain")
+      .remove();
+  }, [result, timeFormat]);
+
+  return (
+    <div
+      className="w-full bg-white dark:bg-slate-800 rounded-xl shadow-md border border-blue-100 dark:border-slate-700 p-4 mb-8 transition-colors"
+      ref={wrapperRef}
+    >
+      <svg
+        ref={svgRef}
+        className="w-full h-auto overflow-visible"
+        aria-label="Visualización de la forma de onda detallada"
+      ></svg>
+    </div>
+  );
 };
 
 export default WaveformChart;
